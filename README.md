@@ -66,3 +66,17 @@ machines or keep a record.
 > local network, and the camera's clock date must match — confirm it in SADP's
 > **Start Time** on the day. This sheet is prep and record-keeping; it does not
 > reach any camera itself.
+
+## Remote access setup (reference)
+
+`remote-access-setup.html` is an installer reference for configuring kit you've
+installed from off-site (device at the customer's, you at home). It covers the
+three supported routes — **Hik-Connect** (P2P cloud, no router changes),
+**VPN** into the site network (most secure direct access), and
+**DDNS + port forwarding** (works but exposes the device, so harden it) — with
+when to use each and the security steps for the last one.
+
+Remote management needs a **valid admin login** and the customer's consent. A
+**lost/forgotten** password can't be reset remotely (Hikvision blocks it by
+design) — that needs someone on the local network with SADP, so use the two
+tools above on a site visit or by talking the customer through SADP.

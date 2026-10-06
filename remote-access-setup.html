@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Remote Access Setup — Hikvision (Installer Reference)</title>
+  <style>
+    :root{--bg:#f4f5f7;--card:#fff;--ink:#1a1d21;--muted:#5a6572;--line:#d8dde3;
+      --accent:#1457b8;--warn-bg:#fff4e5;--warn-line:#e6a23c;--ok:#1a7f45;--danger:#b42318;}
+    @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+      --bg:#11151a;--card:#1a1f26;--ink:#e8ebee;--muted:#9aa5b1;--line:#2b323b;
+      --accent:#4f8fe0;--warn-bg:#2a2114;--warn-line:#a6761d;--ok:#5ec98a;--danger:#f0786b;}}
+    :root[data-theme="dark"]{--bg:#11151a;--card:#1a1f26;--ink:#e8ebee;--muted:#9aa5b1;--line:#2b323b;
+      --accent:#4f8fe0;--warn-bg:#2a2114;--warn-line:#a6761d;--ok:#5ec98a;--danger:#f0786b;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--ink);
+      font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px 16px;}
+    .wrap{max-width:720px;margin:0 auto;}
+    h1{font-size:1.4rem;margin:0 0 4px;}
+    h2{font-size:1.1rem;margin:22px 0 6px;}
+    .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+    .tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+      padding:2px 8px;border-radius:20px;margin-bottom:6px;}
+    .easy{background:rgba(26,127,69,.15);color:var(--ok);}
+    .mid{background:rgba(20,87,184,.15);color:var(--accent);}
+    .care{background:rgba(230,162,60,.18);color:var(--warn-line);}
+    ol,ul{margin:6px 0;padding-left:22px;}
+    li{margin-bottom:4px;}
+    .notice{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:12px 14px;font-size:.88rem;margin-bottom:16px;}
+    .notice strong{display:block;margin-bottom:3px;}
+    code{background:var(--bg);padding:1px 6px;border-radius:4px;font-size:.88em;}
+    .pro{color:var(--ok);} .con{color:var(--danger);}
+    table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:6px;}
+    th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+    th{background:var(--bg);}
+    footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:10px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Remote Access Setup — Hikvision</h1>
+    <p class="sub">GS Electrical · installer reference for configuring kit you've installed, from off-site.</p>
+
+    <div class="notice">
+      <strong>The ground rules</strong>
+      Only for devices you installed / are contracted to maintain, with the
+      customer's knowledge and consent, using credentials you legitimately hold.
+      Remote access needs a <em>valid admin login</em> — if the password is lost,
+      that's a local SADP reset on site (can't be done remotely, by design).
+      Log the customer's consent to remote-manage in your job notes.
+    </div>
+
+    <h2>Which method?</h2>
+    <table>
+      <tr><th>Method</th><th>Router config?</th><th>Best for</th></tr>
+      <tr><td>Hik-Connect (P2P)</td><td>No</td><td>Day-to-day: quickest, nothing to open on the router</td></tr>
+      <tr><td>VPN to site</td><td>Yes (one-off)</td><td>Full, secure config access — the safest "proper" route</td></tr>
+      <tr><td>DDNS + port forward</td><td>Yes</td><td>Direct web/iVMS access when P2P isn't an option — use with care</td></tr>
+    </table>
+
+    <h2>Option A — Hik-Connect (recommended default)</h2>
+    <div class="card">
+      <span class="tag easy">Easiest · no router changes</span>
+      <p>Hikvision's cloud relay (P2P). The device dials out to Hik-Connect, so you
+      reach it without opening anything on the customer's router.</p>
+      <ol>
+        <li>On site (or via existing local access): <b>Configuration → Network → Advanced → Platform Access</b>, tick <b>Enable</b>, platform <b>Hik-Connect</b>, set a <b>verification/stream encryption code</b>.</li>
+        <li>Make sure the device has a working internet connection and correct gateway/DNS.</li>
+        <li>Add the device to <b>your</b> installer account in the Hik-Connect app / iVMS-4200 / Hik-Partner Pro by serial + verification code — <em>or</em> have the customer add it to their account and <b>Share</b> it to you.</li>
+        <li>From home: open Hik-Connect (app or desktop) or iVMS-4200 and the device is there to view and configure.</li>
+      </ol>
+      <p class="pro">+ No ports exposed to the internet. + Survives changing home IPs. + Customer can revoke sharing anytime.</p>
+      <p class="con">− Relies on Hikvision's cloud being up. − Some deep settings are still easier over the full web UI (use VPN for those).</p>
+    </div>
+
+    <h2>Option B — VPN into the site network</h2>
+    <div class="card">
+      <span class="tag mid">Most secure direct access</span>
+      <p>If the customer's router supports it (many do — WireGuard/OpenVPN/IPsec),
+      set up a VPN once. You then join their LAN from home and reach the camera's
+      full web UI exactly as if you were on site — SADP won't traverse it, but the
+      web interface and iVMS will.</p>
+      <ol>
+        <li>Enable the router's VPN server (or add a small VPN box), create a client profile for yourself.</li>
+        <li>Connect from home, then browse to the device's <b>local</b> IP (e.g. <code>https://192.168.1.64</code>) or add it in iVMS-4200 by LAN IP.</li>
+      </ol>
+      <p class="pro">+ Nothing camera-facing is exposed to the internet. + Full config access. + One tunnel covers every device on site.</p>
+      <p class="con">− Needs a capable router or a VPN device. − Slightly more to set up the first time.</p>
+    </div>
+
+    <h2>Option C — DDNS + port forwarding</h2>
+    <div class="card">
+      <span class="tag care">Works, but exposes the device — harden it</span>
+      <p>Direct route: a DDNS hostname tracks the customer's changing public IP, and
+      the router forwards a port to the device so you can reach its web UI / iVMS from
+      anywhere. Because it puts the device on the public internet, only do this with
+      the hardening below.</p>
+      <ol>
+        <li>Set up DDNS (router's own, or the device's <b>Network → DDNS</b>).</li>
+        <li>Forward a <b>non-default</b> external port to the device's HTTPS port; prefer HTTPS, avoid plain HTTP.</li>
+        <li>Reach it from home at <code>https://yourname.ddns.net:PORT</code>.</li>
+      </ol>
+      <p class="con">If you do this: strong unique admin password, latest firmware, HTTPS only, change default ports, disable services you don't use (UPnP, old ONVIF, Telnet/SSH), and lock the forward to your own IP if the router allows. Prefer A or B whenever you can.</p>
+    </div>
+
+    <h2>If the password is lost (not remote)</h2>
+    <div class="card">
+      <p>None of the above helps if you've lost the admin login — remote password
+      reset is deliberately blocked. You'll need someone on the local network with
+      the <b>SADP</b> tool: either a site visit, or talk the customer through running
+      SADP and reading you the serial + <b>Start Time</b> so you can generate the
+      reset code (see <code>reset-code-generator.html</code> / <code>site-prep.html</code>).
+      The code is then entered in SADP on their LAN.</p>
+    </div>
+
+    <footer>Prefer Hik-Connect or VPN. Port-forwarding a camera straight onto the internet is the most-attacked setup there is — only with the hardening above.</footer>
+  </div>
+</body>
+</html>
