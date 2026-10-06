@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site Prep — Hikvision Setup &amp; Reset Codes (Offline)</title>
+  <style>
+    :root {
+      --bg:#f4f5f7; --card:#fff; --ink:#1a1d21; --muted:#5a6572; --line:#d8dde3;
+      --accent:#1457b8; --accent-ink:#fff; --warn-bg:#fff4e5; --warn-line:#e6a23c;
+      --code-bg:#0f1722; --code-ink:#7ee787; --danger:#b42318; --ok:#1a7f45;
+    }
+    @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+      --bg:#11151a; --card:#1a1f26; --ink:#e8ebee; --muted:#9aa5b1; --line:#2b323b;
+      --accent:#4f8fe0; --accent-ink:#0b1016; --warn-bg:#2a2114; --warn-line:#a6761d;
+      --code-bg:#0b1016; --danger:#f0786b; --ok:#5ec98a;
+    }}
+    :root[data-theme="dark"]{
+      --bg:#11151a; --card:#1a1f26; --ink:#e8ebee; --muted:#9aa5b1; --line:#2b323b;
+      --accent:#4f8fe0; --accent-ink:#0b1016; --warn-bg:#2a2114; --warn-line:#a6761d;
+      --code-bg:#0b1016; --danger:#f0786b; --ok:#5ec98a;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--ink);
+      font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      padding:24px 16px;}
+    .wrap{max-width:860px;margin:0 auto;}
+    h1{font-size:1.4rem;margin:0 0 4px;}
+    .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+    button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);
+      background:var(--card);color:var(--ink);padding:8px 14px;}
+    button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+    button.ghost{background:transparent;}
+    button.danger{color:var(--danger);}
+    .notice{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;
+      padding:12px 14px;font-size:.85rem;margin-bottom:16px;}
+    .notice strong{display:block;margin-bottom:3px;}
+    .cam{background:var(--card);border:1px solid var(--line);border-radius:12px;
+      padding:16px;margin-bottom:16px;}
+    .cam-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+    .cam-head input.loc{flex:1;font-size:1.05rem;font-weight:600;border:none;border-bottom:1px solid var(--line);
+      background:transparent;color:var(--ink);padding:4px 2px;}
+    .cam-head input.loc:focus{outline:none;border-bottom-color:var(--accent);}
+    .grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;}
+    @media(max-width:620px){.grid{grid-template-columns:1fr 1fr;}}
+    label{display:block;font-size:.76rem;font-weight:600;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
+    input.f{width:100%;padding:8px 10px;font-size:1rem;border:1px solid var(--line);border-radius:7px;
+      background:var(--bg);color:var(--ink);}
+    input.f:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .code-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+    .code-label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+    .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.2rem;letter-spacing:1px;
+      background:var(--code-bg);color:var(--code-ink);padding:8px 14px;border-radius:7px;min-width:140px;text-align:center;}
+    .copy{font-size:.8rem;padding:6px 10px;}
+    .checklist{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;}
+    .checklist .ck-title{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+    .cks{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
+    @media(max-width:620px){.cks{grid-template-columns:1fr;}}
+    .ck{display:flex;align-items:center;gap:8px;font-size:.92rem;}
+    .ck input{width:17px;height:17px;}
+    .ck.done label{color:var(--ok);text-decoration:line-through;}
+    .notes{width:100%;margin-top:10px;min-height:46px;padding:8px 10px;border:1px solid var(--line);
+      border-radius:7px;background:var(--bg);color:var(--ink);font:inherit;resize:vertical;}
+    footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:10px;}
+    .saved{color:var(--ok);font-size:.8rem;}
+    @media print{
+      body{padding:0;background:#fff;color:#000;}
+      .toolbar,.notice,.copy,button{display:none !important;}
+      .cam{break-inside:avoid;border-color:#999;}
+      .code{background:#eee;color:#000;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Site Prep — Hikvision Setup &amp; Reset Codes</h1>
+    <p class="sub">GS Electrical · offline prep sheet. Build your camera list in the office; complete it on site.</p>
+
+    <div class="notice">
+      <strong>Authorised use only · runs fully offline</strong>
+      For cameras you own or are contracted to service, with the owner's permission.
+      Reset codes still have to be applied on site via the SADP tool on the device's
+      local network — the camera's clock date must match what you enter here, so confirm
+      it in SADP's <em>Start Time</em> on the day. Nothing here is sent anywhere; your list
+      is saved only in this browser on this Mac.
+    </div>
+
+    <div class="toolbar">
+      <button class="primary" id="add">+ Add camera</button>
+      <button class="ghost" id="print">Print / Save as PDF</button>
+      <button class="ghost" id="export">Export list (.json)</button>
+      <button class="ghost" id="importBtn">Import list</button>
+      <button class="ghost danger" id="clear">Clear all</button>
+      <span class="saved" id="savedNote"></span>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
+    </div>
+
+    <div id="cameras"></div>
+
+    <footer>Reset code = serial number + the camera's own clock date. Default password after reset is usually <code>123456789abc</code> — change it on site.</footer>
+  </div>
+
+  <script>
+    var STORAGE_KEY = "gs_hik_siteprep_v1";
+    var CHECK_ITEMS = [
+      ["pwd", "Admin password set & recorded"],
+      ["activate", "Device activated"],
+      ["network", "IP / subnet / gateway set"],
+      ["time", "Time & NTP / timezone set"],
+      ["recording", "Recording schedule configured"],
+      ["motion", "Motion / smart events set"],
+      ["hikconnect", "Hik-Connect / remote access"],
+      ["firmware", "Firmware checked / updated"],
+      ["labelled", "Device labelled & logged"],
+      ["handover", "Handover / details to client"]
+    ];
+
+    function pad(n){n=""+n;return n.length<2?"0"+n:n;}
+
+    function generateResetCode(serial, year, month, day){
+      var plain = serial + year + month + day;
+      var magic = 0;
+      for (var i=0;i<plain.length;i++) magic += (plain.charCodeAt(i)*(i+1)) ^ (i+1);
+      magic *= 1751873395; magic = magic >>> 0;
+      var word = ""+magic, code = "";
+      for (var j=0;j<word.length;j++){
+        var c = word.charCodeAt(j);
+        if (c<51) code += String.fromCharCode(c+33);
+        else if (c<53) code += String.fromCharCode(c+62);
+        else if (c<55) code += String.fromCharCode(c+47);
+        else if (c<57) code += String.fromCharCode(c+66);
+        else code += String.fromCharCode(c);
+      }
+      return code;
+    }
+
+    var state = { cameras: [] };
+
+    function load(){
+      try{
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw){ state = JSON.parse(raw); }
+      }catch(e){}
+      if (!state.cameras || !state.cameras.length){ addCamera(false); }
+    }
+    function save(){
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        flash("Saved");
+      }catch(e){ flash("Not saved (storage blocked)"); }
+    }
+    var flashT;
+    function flash(msg){
+      var el = document.getElementById("savedNote");
+      el.textContent = msg;
+      clearTimeout(flashT);
+      flashT = setTimeout(function(){ el.textContent=""; }, 1500);
+    }
+
+    function blankCam(){
+      var now = new Date();
+      var ck = {}; CHECK_ITEMS.forEach(function(it){ ck[it[0]]=false; });
+      return { loc:"", serial:"", year:""+now.getFullYear(), month:pad(now.getMonth()+1),
+               day:pad(now.getDate()), notes:"", check:ck };
+    }
+    function addCamera(doSave){
+      state.cameras.push(blankCam());
+      render();
+      if (doSave!==false) save();
+    }
+
+    function render(){
+      var host = document.getElementById("cameras");
+      host.innerHTML = "";
+      state.cameras.forEach(function(cam, idx){
+        var el = document.createElement("div");
+        el.className = "cam";
+
+        var code = "";
+        if (cam.serial && cam.year.length===4 && cam.month.length===2 && cam.day.length===2){
+          code = generateResetCode(cam.serial.trim(), cam.year, cam.month, cam.day);
+        }
+
+        var cks = CHECK_ITEMS.map(function(it){
+          var done = cam.check[it[0]];
+          return '<div class="ck'+(done?' done':'')+'">'
+            +'<input type="checkbox" data-k="'+it[0]+'" '+(done?'checked':'')+'>'
+            +'<label>'+it[1]+'</label></div>';
+        }).join("");
+
+        el.innerHTML =
+          '<div class="cam-head">'
+          +'<input class="loc" placeholder="Camera '+(idx+1)+' — location / name" value="'+esc(cam.loc)+'">'
+          +'<button class="danger ghost rm">Remove</button>'
+          +'</div>'
+          +'<div class="grid">'
+          +'<div><label>Serial number (case sensitive)</label><input class="f s-serial" value="'+esc(cam.serial)+'" placeholder="as shown in SADP"></div>'
+          +'<div><label>Year (YYYY)</label><input class="f s-year" value="'+esc(cam.year)+'"></div>'
+          +'<div><label>Month (MM)</label><input class="f s-month" value="'+esc(cam.month)+'"></div>'
+          +'<div><label>Day (DD)</label><input class="f s-day" value="'+esc(cam.day)+'"></div>'
+          +'</div>'
+          +'<div class="code-row"><span class="code-label">Reset code</span>'
+          +'<span class="code">'+(code||"—")+'</span>'
+          +(code?'<button class="copy">Copy</button>':'')
+          +'</div>'
+          +'<div class="checklist"><div class="ck-title">Setup / handover checklist</div>'
+          +'<div class="cks">'+cks+'</div>'
+          +'<textarea class="notes" placeholder="Notes (IP, credentials location, firmware ver, client sign-off…)">'+esc(cam.notes)+'</textarea>'
+          +'</div>';
+
+        // wire fields
+        el.querySelector(".loc").addEventListener("input", function(e){ cam.loc=e.target.value; save(); });
+        bind(el, ".s-serial", "serial", cam, el);
+        bind(el, ".s-year", "year", cam, el);
+        bind(el, ".s-month", "month", cam, el);
+        bind(el, ".s-day", "day", cam, el);
+        el.querySelector(".notes").addEventListener("input", function(e){ cam.notes=e.target.value; save(); });
+        el.querySelector(".rm").addEventListener("click", function(){
+          state.cameras.splice(idx,1);
+          if(!state.cameras.length) addCamera(false);
+          render(); save();
+        });
+        var copyBtn = el.querySelector(".copy");
+        if (copyBtn){ copyBtn.addEventListener("click", function(){
+          navigator.clipboard && navigator.clipboard.writeText(code);
+          flash("Code copied");
+        }); }
+        el.querySelectorAll(".ck input").forEach(function(box){
+          box.addEventListener("change", function(){
+            cam.check[box.getAttribute("data-k")] = box.checked;
+            render(); save();
+          });
+        });
+
+        host.appendChild(el);
+      });
+    }
+
+    function bind(el, sel, key, cam){
+      el.querySelector(sel).addEventListener("input", function(e){
+        cam[key] = e.target.value;
+        // live-update just the code span without full re-render (keeps focus)
+        var card = e.target.closest(".cam");
+        var code = "";
+        if (cam.serial && cam.year.length===4 && cam.month.length===2 && cam.day.length===2){
+          code = generateResetCode(cam.serial.trim(), cam.year, cam.month, cam.day);
+        }
+        card.querySelector(".code").textContent = code || "—";
+        save();
+      });
+    }
+
+    function esc(s){ return (s==null?"":(""+s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    document.getElementById("add").addEventListener("click", function(){ addCamera(); });
+    document.getElementById("print").addEventListener("click", function(){ window.print(); });
+    document.getElementById("clear").addEventListener("click", function(){
+      if (confirm("Clear the whole camera list on this Mac?")){
+        state = { cameras: [] }; addCamera(false); render(); save();
+      }
+    });
+    document.getElementById("export").addEventListener("click", function(){
+      var blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "site-prep-"+new Date().toISOString().slice(0,10)+".json";
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    });
+    document.getElementById("importBtn").addEventListener("click", function(){
+      document.getElementById("importFile").click();
+    });
+    document.getElementById("importFile").addEventListener("change", function(e){
+      var file = e.target.files[0]; if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          var data = JSON.parse(reader.result);
+          if (data && Array.isArray(data.cameras)){ state = data; render(); save(); flash("List imported"); }
+          else flash("Not a valid list file");
+        }catch(err){ flash("Could not read file"); }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    load();
+    render();
+  </script>
+</body>
+</html>

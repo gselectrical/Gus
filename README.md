@@ -44,3 +44,25 @@ locally.
 
 For newer firmware that only accepts an `encrypt.xml` challenge file, use the
 manufacturer's official support channel instead.
+
+## Site prep sheet (batch + checklist)
+
+`site-prep.html` is the "prep ahead of the job" version. Same offline engine,
+but for a whole list of cameras at once:
+
+- **Batch reset codes** — add a row per camera (location, serial, clock date)
+  and each row shows its reset code live, so you can arrive with codes ready.
+- **Per-camera setup / handover checklist** — password set, activation,
+  IP/network, time & NTP, recording, motion/smart events, Hik-Connect,
+  firmware, labelling, client handover — plus a notes box per camera.
+
+It runs fully offline. Your list is saved in the browser on that machine
+(localStorage), so you can build it the night before and it'll still be there
+on the day. Buttons let you **Print / Save as PDF** (a clean sheet to take on
+site) and **Export / Import** the list as a `.json` file to move between
+machines or keep a record.
+
+> The reset codes still have to be applied on site via SADP on the device's
+> local network, and the camera's clock date must match — confirm it in SADP's
+> **Start Time** on the day. This sheet is prep and record-keeping; it does not
+> reach any camera itself.
