@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hikvision Admin Reset Code — Internal Tool</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --ink: #1a1d21;
+      --muted: #5a6572;
+      --line: #d8dde3;
+      --accent: #1457b8;
+      --accent-ink: #ffffff;
+      --warn-bg: #fff4e5;
+      --warn-line: #e6a23c;
+      --code-bg: #0f1722;
+      --code-ink: #7ee787;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #11151a; --card: #1a1f26; --ink: #e8ebee; --muted: #9aa5b1;
+        --line: #2b323b; --accent: #4f8fe0; --accent-ink: #0b1016;
+        --warn-bg: #2a2114; --warn-line: #a6761d; --code-bg: #0b1016;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #11151a; --card: #1a1f26; --ink: #e8ebee; --muted: #9aa5b1;
+      --line: #2b323b; --accent: #4f8fe0; --accent-ink: #0b1016;
+      --warn-bg: #2a2114; --warn-line: #a6761d; --code-bg: #0b1016;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 24px 16px;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 20px; font-size: 0.95rem; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+      padding: 20px; margin-bottom: 18px;
+    }
+    label { display: block; font-weight: 600; margin: 14px 0 4px; font-size: 0.9rem; }
+    .hint { color: var(--muted); font-weight: 400; font-size: 0.82rem; margin-top: 2px; }
+    input {
+      width: 100%; padding: 10px 12px; font-size: 1.05rem; border: 1px solid var(--line);
+      border-radius: 8px; background: var(--bg); color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .row { display: flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .out-label { font-weight: 600; margin: 20px 0 6px; }
+    #output {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 1.6rem; letter-spacing: 2px; background: var(--code-bg); color: var(--code-ink);
+      padding: 16px; border-radius: 8px; text-align: center; min-height: 1.6em;
+      word-break: break-all;
+    }
+    .notice {
+      background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 10px;
+      padding: 14px 16px; font-size: 0.88rem; margin-bottom: 18px;
+    }
+    .notice strong { display: block; margin-bottom: 4px; }
+    ol { margin: 8px 0 0; padding-left: 20px; }
+    ol li { margin-bottom: 6px; }
+    code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+    footer { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Hikvision Admin Reset Code</h1>
+    <p class="sub">Internal recovery tool — GS Electrical</p>
+
+    <div class="notice">
+      <strong>Authorised use only</strong>
+      Use this only to recover the admin password on cameras/NVRs you own or
+      are contracted to service, with the device owner's permission and local
+      SADP access to the device. It does not grant remote access: you still need
+      to be on the device's network and enter the code via the SADP tool.
+    </div>
+
+    <div class="card">
+      <label for="serialNumber">Camera serial number
+        <span class="hint">Exactly as shown in SADP — case sensitive.</span>
+      </label>
+      <input id="serialNumber" type="text" autocomplete="off" spellcheck="false"
+             placeholder="e.g. DS-2CD2042WD-I20160101AAWR000000000">
+
+      <div class="row">
+        <div>
+          <label for="year">Year
+            <span class="hint">4 digits</span>
+          </label>
+          <input id="year" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+        <div>
+          <label for="month">Month
+            <span class="hint">2 digits</span>
+          </label>
+          <input id="month" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+        <div>
+          <label for="day">Day
+            <span class="hint">2 digits</span>
+          </label>
+          <input id="day" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+      </div>
+      <p class="hint" style="margin-top:10px">
+        The date must match the <em>camera's own clock</em>, not today's date.
+        Power-cycle the device, let it boot, refresh SADP, and read the
+        <strong>Start Time</strong> column to find the date the camera thinks it is.
+      </p>
+
+      <div class="out-label">Reset code</div>
+      <div id="output">—</div>
+    </div>
+
+    <div class="card">
+      <strong>How to use</strong>
+      <ol>
+        <li>Find the device in the Hikvision <strong>SADP</strong> tool on the local network.</li>
+        <li>Read the serial number and the camera's <strong>Start Time</strong> date into the fields above.</li>
+        <li>Copy the generated reset code.</li>
+        <li>In SADP, paste it into the <strong>Serial code</strong> / <strong>Security code</strong> box and apply.</li>
+        <li>The default password after reset is typically <code>123456789abc</code> — change it immediately.</li>
+      </ol>
+      <p class="hint" style="margin-top:10px">
+        If the code is rejected, the serial or the camera-clock date doesn't match
+        exactly. Re-read both from SADP. For newer firmware that only accepts an
+        <code>encrypt.xml</code> challenge file, use the manufacturer's official
+        support channel instead.
+      </p>
+    </div>
+
+    <footer>Runs entirely offline in your browser. Nothing is sent anywhere.</footer>
+  </div>
+
+  <script>
+    function padLeft(str, len, ch) {
+      str = "" + str;
+      return Array(len - str.length + 1).join(ch || " ") + str;
+    }
+
+    // Computes the legacy Hikvision reset code from the device serial number
+    // and the device's own clock date. Pure, offline, deterministic.
+    function generateResetCode(serialNumber, year, month, day) {
+      var plain = serialNumber + year + month + day;
+      var magic = 0;
+      for (var i = 0; i < plain.length; i++) {
+        magic += (plain.charCodeAt(i) * (i + 1)) ^ (i + 1);
+      }
+      magic *= 1751873395;
+      magic = magic >>> 0; // force unsigned 32-bit
+      var word = "" + magic;
+      var code = "";
+      for (var j = 0; j < word.length; j++) {
+        var c = word.charCodeAt(j);
+        if (c < 51)      code += String.fromCharCode(c + 33);
+        else if (c < 53) code += String.fromCharCode(c + 62);
+        else if (c < 55) code += String.fromCharCode(c + 47);
+        else if (c < 57) code += String.fromCharCode(c + 66);
+        else             code += String.fromCharCode(c);
+      }
+      return code;
+    }
+
+    function refresh() {
+      var serial = document.getElementById("serialNumber").value.trim();
+      var year = document.getElementById("year").value.trim();
+      var month = document.getElementById("month").value.trim();
+      var day = document.getElementById("day").value.trim();
+      var out = document.getElementById("output");
+      if (!serial || year.length !== 4 || month.length !== 2 || day.length !== 2) {
+        out.textContent = "—";
+        return;
+      }
+      out.textContent = generateResetCode(serial, year, month, day);
+    }
+
+    function init() {
+      var now = new Date();
+      document.getElementById("year").value = now.getFullYear();
+      document.getElementById("month").value = padLeft(now.getMonth() + 1, 2, "0");
+      document.getElementById("day").value = padLeft(now.getDate(), 2, "0");
+      ["serialNumber", "year", "month", "day"].forEach(function (id) {
+        document.getElementById(id).addEventListener("input", refresh);
+      });
+      refresh();
+    }
+
+    window.addEventListener("load", init);
+  </script>
+</body>
+</html>
