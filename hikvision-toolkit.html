@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hikvision Toolkit — GS Electrical (Offline)</title>
+  <style>
+    :root{--bg:#f4f5f7;--card:#fff;--ink:#1a1d21;--muted:#5a6572;--line:#d8dde3;
+      --accent:#1457b8;--accent-ink:#fff;--warn-bg:#fff4e5;--warn-line:#e6a23c;
+      --code-bg:#0f1722;--code-ink:#7ee787;--ok:#1a7f45;--danger:#b42318;}
+    @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+      --bg:#11151a;--card:#1a1f26;--ink:#e8ebee;--muted:#9aa5b1;--line:#2b323b;
+      --accent:#4f8fe0;--accent-ink:#0b1016;--warn-bg:#2a2114;--warn-line:#a6761d;
+      --code-bg:#0b1016;--ok:#5ec98a;--danger:#f0786b;}}
+    :root[data-theme="dark"]{--bg:#11151a;--card:#1a1f26;--ink:#e8ebee;--muted:#9aa5b1;--line:#2b323b;
+      --accent:#4f8fe0;--accent-ink:#0b1016;--warn-bg:#2a2114;--warn-line:#a6761d;
+      --code-bg:#0b1016;--ok:#5ec98a;--danger:#f0786b;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--ink);
+      font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:0 0 40px;}
+    header{background:var(--card);border-bottom:1px solid var(--line);padding:18px 16px 0;position:sticky;top:0;z-index:5;}
+    .hwrap{max-width:860px;margin:0 auto;}
+    h1{font-size:1.25rem;margin:0 0 2px;}
+    .sub{color:var(--muted);margin:0 0 12px;font-size:.88rem;}
+    .tabs{display:flex;gap:4px;flex-wrap:wrap;}
+    .tab{border:1px solid var(--line);border-bottom:none;background:var(--bg);color:var(--muted);
+      padding:9px 16px;border-radius:9px 9px 0 0;cursor:pointer;font:inherit;font-weight:600;}
+    .tab.active{background:var(--card);color:var(--accent);border-color:var(--accent);box-shadow:0 2px 0 var(--card);}
+    main{max-width:860px;margin:0 auto;padding:20px 16px 0;}
+    .panel{display:none;} .panel.active{display:block;}
+    h2{font-size:1.1rem;margin:20px 0 6px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+    label{display:block;font-size:.76rem;font-weight:600;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
+    label.big{font-size:.9rem;text-transform:none;letter-spacing:0;color:var(--ink);margin:12px 0 4px;}
+    .hint{color:var(--muted);font-weight:400;font-size:.82rem;}
+    input.f,textarea.f{width:100%;padding:9px 11px;font-size:1rem;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-family:inherit;}
+    input.f:focus,textarea.f:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .row{display:flex;gap:10px;} .row>div{flex:1;}
+    button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;}
+    button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+    button.ghost{background:transparent;} button.danger{color:var(--danger);}
+    .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.4rem;letter-spacing:1px;
+      background:var(--code-bg);color:var(--code-ink);padding:12px 14px;border-radius:8px;text-align:center;min-width:150px;word-break:break-all;}
+    .notice{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:12px 14px;font-size:.86rem;margin-bottom:16px;}
+    .notice strong{display:block;margin-bottom:3px;}
+    code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:.88em;}
+    /* site prep */
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center;}
+    .cam{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;}
+    .cam-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+    .cam-head input.loc{flex:1;font-size:1.05rem;font-weight:600;border:none;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 2px;}
+    .cam-head input.loc:focus{outline:none;border-bottom-color:var(--accent);}
+    .grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;}
+    @media(max-width:620px){.grid{grid-template-columns:1fr 1fr;}}
+    .code-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+    .code-label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+    .code.sm{font-size:1.15rem;padding:8px 14px;min-width:130px;}
+    .checklist{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;}
+    .ck-title{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+    .cks{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
+    @media(max-width:620px){.cks{grid-template-columns:1fr;}}
+    .ck{display:flex;align-items:center;gap:8px;font-size:.9rem;} .ck input{width:17px;height:17px;}
+    .ck.done label{color:var(--ok);text-decoration:line-through;}
+    .saved{color:var(--ok);font-size:.8rem;}
+    /* remote tables */
+    table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:6px;}
+    th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;} th{background:var(--bg);}
+    .tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:20px;margin-bottom:6px;}
+    .easy{background:rgba(26,127,69,.15);color:var(--ok);} .mid{background:rgba(20,87,184,.15);color:var(--accent);} .care{background:rgba(230,162,60,.18);color:var(--warn-line);}
+    .pro{color:var(--ok);} .con{color:var(--danger);}
+    ol,ul{margin:6px 0;padding-left:22px;} li{margin-bottom:4px;}
+    footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:16px;}
+    @media print{header,.toolbar,.tabs,button,.notice{display:none !important;}
+      .panel{display:block !important;} .cam{break-inside:avoid;} body{padding:0;}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hwrap">
+      <h1>Hikvision Toolkit</h1>
+      <p class="sub">GS Electrical · offline. Reset codes, site prep &amp; remote-access reference in one file.</p>
+      <div class="tabs">
+        <button class="tab active" data-tab="quick">Quick Reset</button>
+        <button class="tab" data-tab="prep">Site Prep</button>
+        <button class="tab" data-tab="remote">Remote Access</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="notice">
+      <strong>Authorised use only · runs fully offline</strong>
+      For devices you own or are contracted to service, with the owner's permission.
+      Reset codes are applied on site via the SADP tool on the device's local network;
+      the camera's clock date must match. A lost password can't be reset remotely.
+      Nothing here is sent anywhere.
+    </div>
+
+    <!-- QUICK RESET -->
+    <section class="panel active" id="quick">
+      <div class="card">
+        <label class="big" for="q_serial">Camera serial number <span class="hint">exactly as shown in SADP — case sensitive</span></label>
+        <input class="f" id="q_serial" autocomplete="off" spellcheck="false" placeholder="e.g. DS-2CD...20160101AAWR000000000">
+        <div class="row" style="margin-top:12px">
+          <div><label>Year (YYYY)</label><input class="f" id="q_year" inputmode="numeric"></div>
+          <div><label>Month (MM)</label><input class="f" id="q_month" inputmode="numeric"></div>
+          <div><label>Day (DD)</label><input class="f" id="q_day" inputmode="numeric"></div>
+        </div>
+        <p class="hint" style="margin:10px 0 0">Date must match the <b>camera's own clock</b> (SADP <b>Start Time</b> after a power-cycle), not today.</p>
+        <label class="big" style="margin-top:16px">Reset code</label>
+        <div class="code" id="q_out">—</div>
+      </div>
+      <div class="card">
+        <strong>Steps</strong>
+        <ol>
+          <li>Find the device in Hikvision <b>SADP</b> on the local network.</li>
+          <li>Read its serial and <b>Start Time</b> date into the fields above.</li>
+          <li>Copy the code; paste into SADP's <b>Serial code</b> / <b>Security code</b> box and apply.</li>
+          <li>Default password after reset is usually <code>123456789abc</code> — change it immediately.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SITE PREP -->
+    <section class="panel" id="prep">
+      <div class="toolbar">
+        <button class="primary" id="p_add">+ Add camera</button>
+        <button class="ghost" id="p_print">Print / Save PDF</button>
+        <button class="ghost" id="p_export">Export (.json)</button>
+        <button class="ghost" id="p_import">Import</button>
+        <button class="ghost danger" id="p_clear">Clear all</button>
+        <span class="saved" id="p_saved"></span>
+        <input type="file" id="p_file" accept="application/json" style="display:none">
+      </div>
+      <div id="p_cameras"></div>
+    </section>
+
+    <!-- REMOTE ACCESS -->
+    <section class="panel" id="remote">
+      <h2>Which method?</h2>
+      <table>
+        <tr><th>Method</th><th>Router config?</th><th>Best for</th></tr>
+        <tr><td>Hik-Connect (P2P)</td><td>No</td><td>Day-to-day: quickest, nothing to open on the router</td></tr>
+        <tr><td>VPN to site</td><td>Yes (one-off)</td><td>Full, secure config access — the safest proper route</td></tr>
+        <tr><td>DDNS + port forward</td><td>Yes</td><td>Direct access when P2P isn't an option — use with care</td></tr>
+      </table>
+
+      <h2>A — Hik-Connect (recommended default)</h2>
+      <div class="card">
+        <span class="tag easy">Easiest · no router changes</span>
+        <p>Cloud relay (P2P): the device dials out, so you reach it without opening ports.</p>
+        <ol>
+          <li><b>Configuration → Network → Advanced → Platform Access</b>, tick <b>Enable</b>, platform <b>Hik-Connect</b>, set a <b>verification code</b>.</li>
+          <li>Confirm the device has internet (gateway/DNS correct).</li>
+          <li>Add it to your installer account (Hik-Connect / iVMS-4200 / Hik-Partner Pro) by serial + verification code — or have the customer <b>Share</b> it to you.</li>
+          <li>From home, open Hik-Connect or iVMS-4200 — device is there to view &amp; configure.</li>
+        </ol>
+        <p class="pro">+ No exposed ports. + Survives changing IPs. + Customer can revoke anytime.</p>
+        <p class="con">− Relies on Hik cloud. − Deep settings easier over full web UI (use VPN).</p>
+      </div>
+
+      <h2>B — VPN into the site network</h2>
+      <div class="card">
+        <span class="tag mid">Most secure direct access</span>
+        <p>If the router supports VPN (WireGuard/OpenVPN/IPsec), set it up once; join their LAN from home and reach the camera's full web UI as if on site.</p>
+        <ol>
+          <li>Enable the router's VPN server (or add a VPN box); create your client profile.</li>
+          <li>Connect, then browse the device's local IP (e.g. <code>https://192.168.1.64</code>) or add by LAN IP in iVMS-4200.</li>
+        </ol>
+        <p class="pro">+ Nothing camera-facing exposed. + Full access. + One tunnel covers all devices.</p>
+        <p class="con">− Needs a capable router / VPN device. − A little more first-time setup.</p>
+      </div>
+
+      <h2>C — DDNS + port forwarding</h2>
+      <div class="card">
+        <span class="tag care">Works, but exposes the device — harden it</span>
+        <p>DDNS tracks the changing public IP; router forwards a port to the device. Puts the device on the public internet, so only with the hardening below.</p>
+        <ol>
+          <li>Set up DDNS (router's, or device <b>Network → DDNS</b>).</li>
+          <li>Forward a <b>non-default</b> external port to the device's HTTPS port; HTTPS only.</li>
+          <li>Reach it at <code>https://yourname.ddns.net:PORT</code>.</li>
+        </ol>
+        <p class="con">Strong unique admin password · latest firmware · HTTPS only · non-default ports · disable unused services (UPnP, old ONVIF, Telnet/SSH) · lock the forward to your IP if possible. Prefer A or B.</p>
+      </div>
+
+      <h2>If the password is lost (not remote)</h2>
+      <div class="card">
+        <p>Remote password reset is deliberately blocked. You need someone on the local network with <b>SADP</b>: a site visit, or talk the customer through SADP to read you the serial + <b>Start Time</b>, generate the code on the <b>Quick Reset</b> / <b>Site Prep</b> tab, and enter it in SADP on their LAN.</p>
+      </div>
+    </section>
+
+    <footer>Reset code = serial + camera's own clock date. Prefer Hik-Connect or VPN for remote. Port-forwarding a camera to the internet is the most-attacked setup — harden it.</footer>
+  </main>
+
+  <script>
+    // ---- shared ----
+    function pad(n){n=""+n;return n.length<2?"0"+n:n;}
+    function esc(s){return(s==null?"":(""+s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+    function generateResetCode(serial,year,month,day){
+      var plain=serial+year+month+day,magic=0;
+      for(var i=0;i<plain.length;i++) magic+=(plain.charCodeAt(i)*(i+1))^(i+1);
+      magic*=1751873395; magic=magic>>>0;
+      var word=""+magic,code="";
+      for(var j=0;j<word.length;j++){var c=word.charCodeAt(j);
+        if(c<51)code+=String.fromCharCode(c+33);
+        else if(c<53)code+=String.fromCharCode(c+62);
+        else if(c<55)code+=String.fromCharCode(c+47);
+        else if(c<57)code+=String.fromCharCode(c+66);
+        else code+=String.fromCharCode(c);}
+      return code;
+    }
+
+    // ---- tabs ----
+    document.querySelectorAll(".tab").forEach(function(t){
+      t.addEventListener("click",function(){
+        document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+        document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});
+        t.classList.add("active");
+        document.getElementById(t.getAttribute("data-tab")).classList.add("active");
+      });
+    });
+
+    // ---- quick reset ----
+    (function(){
+      var now=new Date();
+      var serial=document.getElementById("q_serial"),y=document.getElementById("q_year"),
+          m=document.getElementById("q_month"),d=document.getElementById("q_day"),out=document.getElementById("q_out");
+      y.value=now.getFullYear(); m.value=pad(now.getMonth()+1); d.value=pad(now.getDate());
+      function refresh(){
+        var s=serial.value.trim();
+        if(!s||y.value.trim().length!==4||m.value.trim().length!==2||d.value.trim().length!==2){out.textContent="—";return;}
+        out.textContent=generateResetCode(s,y.value.trim(),m.value.trim(),d.value.trim());
+      }
+      [serial,y,m,d].forEach(function(el){el.addEventListener("input",refresh);});
+      refresh();
+    })();
+
+    // ---- site prep ----
+    (function(){
+      var KEY="gs_hik_toolkit_prep_v1";
+      var ITEMS=[["pwd","Admin password set & recorded"],["activate","Device activated"],
+        ["network","IP / subnet / gateway set"],["time","Time & NTP / timezone set"],
+        ["recording","Recording schedule configured"],["motion","Motion / smart events set"],
+        ["hikconnect","Hik-Connect / remote access"],["firmware","Firmware checked / updated"],
+        ["labelled","Device labelled & logged"],["handover","Handover / details to client"]];
+      var state={cameras:[]};
+      var host=document.getElementById("p_cameras"), savedEl=document.getElementById("p_saved"), flashT;
+      function flash(msg){savedEl.textContent=msg;clearTimeout(flashT);flashT=setTimeout(function(){savedEl.textContent="";},1500);}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(state));flash("Saved");}catch(e){flash("Not saved (storage blocked)");}}
+      function load(){try{var r=localStorage.getItem(KEY);if(r)state=JSON.parse(r);}catch(e){} if(!state.cameras||!state.cameras.length)state.cameras=[blank()];}
+      function blank(){var n=new Date(),ck={};ITEMS.forEach(function(it){ck[it[0]]=false;});
+        return{loc:"",serial:"",year:""+n.getFullYear(),month:pad(n.getMonth()+1),day:pad(n.getDate()),notes:"",check:ck};}
+      function codeFor(cam){if(cam.serial&&cam.year.length===4&&cam.month.length===2&&cam.day.length===2)
+        return generateResetCode(cam.serial.trim(),cam.year,cam.month,cam.day);return "";}
+      function render(){
+        host.innerHTML="";
+        state.cameras.forEach(function(cam,idx){
+          var el=document.createElement("div");el.className="cam";
+          var code=codeFor(cam);
+          var cks=ITEMS.map(function(it){var done=cam.check[it[0]];
+            return '<div class="ck'+(done?' done':'')+'"><input type="checkbox" data-k="'+it[0]+'" '+(done?'checked':'')+'><label>'+it[1]+'</label></div>';}).join("");
+          el.innerHTML='<div class="cam-head"><input class="loc" placeholder="Camera '+(idx+1)+' — location / name" value="'+esc(cam.loc)+'"><button class="danger ghost rm">Remove</button></div>'
+            +'<div class="grid"><div><label>Serial (case sensitive)</label><input class="f s_serial" value="'+esc(cam.serial)+'" placeholder="as in SADP"></div>'
+            +'<div><label>Year</label><input class="f s_year" value="'+esc(cam.year)+'"></div>'
+            +'<div><label>Month</label><input class="f s_month" value="'+esc(cam.month)+'"></div>'
+            +'<div><label>Day</label><input class="f s_day" value="'+esc(cam.day)+'"></div></div>'
+            +'<div class="code-row"><span class="code-label">Reset code</span><span class="code sm">'+(code||"—")+'</span>'+(code?'<button class="copy">Copy</button>':'')+'</div>'
+            +'<div class="checklist"><div class="ck-title">Setup / handover checklist</div><div class="cks">'+cks+'</div>'
+            +'<textarea class="f" style="margin-top:10px;min-height:46px" placeholder="Notes (IP, credentials location, firmware ver, sign-off…)">'+esc(cam.notes)+'</textarea></div>';
+          el.querySelector(".loc").addEventListener("input",function(e){cam.loc=e.target.value;save();});
+          function liveCode(){el.querySelector(".code").textContent=codeFor(cam)||"—";}
+          el.querySelector(".s_serial").addEventListener("input",function(e){cam.serial=e.target.value;liveCode();save();});
+          el.querySelector(".s_year").addEventListener("input",function(e){cam.year=e.target.value;liveCode();save();});
+          el.querySelector(".s_month").addEventListener("input",function(e){cam.month=e.target.value;liveCode();save();});
+          el.querySelector(".s_day").addEventListener("input",function(e){cam.day=e.target.value;liveCode();save();});
+          el.querySelector("textarea").addEventListener("input",function(e){cam.notes=e.target.value;save();});
+          el.querySelector(".rm").addEventListener("click",function(){state.cameras.splice(idx,1);if(!state.cameras.length)state.cameras=[blank()];render();save();});
+          var cp=el.querySelector(".copy");
+          if(cp)cp.addEventListener("click",function(){if(navigator.clipboard)navigator.clipboard.writeText(codeFor(cam));flash("Code copied");});
+          el.querySelectorAll(".ck input").forEach(function(b){b.addEventListener("change",function(){cam.check[b.getAttribute("data-k")]=b.checked;render();save();});});
+          host.appendChild(el);
+        });
+      }
+      document.getElementById("p_add").addEventListener("click",function(){state.cameras.push(blank());render();save();});
+      document.getElementById("p_print").addEventListener("click",function(){window.print();});
+      document.getElementById("p_clear").addEventListener("click",function(){if(confirm("Clear the whole camera list on this machine?")){state={cameras:[blank()]};render();save();}});
+      document.getElementById("p_export").addEventListener("click",function(){
+        var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});var a=document.createElement("a");
+        a.href=URL.createObjectURL(blob);a.download="site-prep-"+new Date().toISOString().slice(0,10)+".json";a.click();
+        setTimeout(function(){URL.revokeObjectURL(a.href);},1000);});
+      document.getElementById("p_import").addEventListener("click",function(){document.getElementById("p_file").click();});
+      document.getElementById("p_file").addEventListener("change",function(e){
+        var f=e.target.files[0];if(!f)return;var rd=new FileReader();
+        rd.onload=function(){try{var data=JSON.parse(rd.result);if(data&&Array.isArray(data.cameras)){state=data;render();save();flash("List imported");}else flash("Not a valid list file");}catch(err){flash("Could not read file");}};
+        rd.readAsText(f);e.target.value="";});
+      load();render();
+    })();
+  </script>
+</body>
+</html>
